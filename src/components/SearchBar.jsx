@@ -83,5 +83,6 @@ export default function SearchBar({ onSelectPlayer }) {
         </ul>
       )}
     </div>
+    
   );
 }

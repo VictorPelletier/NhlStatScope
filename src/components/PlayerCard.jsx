@@ -15,6 +15,8 @@ export default function PlayerCard({ player }) {
     birthCountry,
     shootsCatches,
     featuredStats,
+    currentTeamAbbrev,
+    fullTeamName,
   } = player;
 
   const fullName = `${firstName?.default ?? ""} ${lastName?.default ?? ""}`;
@@ -33,6 +35,56 @@ export default function PlayerCard({ player }) {
     const diff = Date.now() - new Date(dob).getTime();
     return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
   }
+
+  // Helper to remove accents and slugify
+  const slugify = (text) => {
+    return text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Removes accents: ý→y, š→s, é→e
+      .replace(/\s+/g, '-')
+      .replace(/[^\w-]/g, '');
+  };
+
+  // Team abbreviation to GearGeek slug mapping
+  const TEAM_SLUGS = {
+    'ANA': 'anaheim-ducks',
+    'BOS': 'boston-bruins',
+    'BUF': 'buffalo-sabres',
+    'CAR': 'carolina-hurricanes',
+    'CBJ': 'columbus-blue-jackets',
+    'CGY': 'calgary-flames',
+    'CHI': 'chicago-blackhawks',
+    'COL': 'colorado-avalanche',
+    'DAL': 'dallas-stars',
+    'DET': 'detroit-red-wings',
+    'EDM': 'edmonton-oilers',
+    'FLA': 'florida-panthers',
+    'LAK': 'los-angeles-kings',
+    'MIN': 'minnesota-wild',
+    'MTL': 'montreal-canadiens',
+    'NJD': 'new-jersey-devils',
+    'NSH': 'nashville-predators',
+    'NYI': 'new-york-islanders',
+    'NYR': 'new-york-rangers',
+    'OTT': 'ottawa-senators',
+    'PHI': 'philadelphia-flyers',
+    'PIT': 'pittsburgh-penguins',
+    'SEA': 'seattle-kraken',
+    'SJS': 'san-jose-sharks',
+    'STL': 'st-louis-blues',
+    'TBL': 'tampa-bay-lightning',
+    'TOR': 'toronto-maple-leafs',
+    'VAN': 'vancouver-canucks',
+    'VGK': 'vegas-golden-knights',
+    'WPG': 'winnipeg-jets',
+    'WSH': 'washington-capitals',
+    'UTA': 'utah-mammoth',
+  };
+
+  const teamSlug = TEAM_SLUGS[currentTeamAbbrev] || 'nhl';
+  const playerSlug = slugify(fullName);
+  const gearGeekUrl = `https://www.geargeek.com/team/${teamSlug}/${playerSlug}`;
 
   return (
     <div className="player-card">
@@ -62,6 +114,16 @@ export default function PlayerCard({ player }) {
               {birthCity?.default ?? "—"}, {birthCountry ?? ""}
             </span>
           </div>
+          
+          {/* Gear link */}
+          <a 
+            href={gearGeekUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="gear-link"
+          >
+            View Equipment →
+          </a>
         </div>
       </div>
 
