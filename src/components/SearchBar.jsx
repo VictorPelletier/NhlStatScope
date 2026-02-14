@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { searchPlayers } from "../utils/nhlApi";
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
+
 
 export default function SearchBar({ onSelectPlayer }) {
   const [query, setQuery] = useState("");
@@ -8,6 +10,19 @@ export default function SearchBar({ onSelectPlayer }) {
   const [searching, setSearching] = useState(false);
   const debounceRef = useRef(null);
   const wrapperRef = useRef(null);
+
+  const{
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition
+  } = useSpeechRecognition();
+
+  useEffect(() => {
+    if (transcript){
+      setQuery(transcript);
+    }
+  }, [transcript]);
 
   // Debounced search
   useEffect(() => {
@@ -44,12 +59,27 @@ export default function SearchBar({ onSelectPlayer }) {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
-
+  useEffect(() => {    
+    if(results.length === 1 && transcript && !listening){
+      setTimeout(() => {
+        handleSelect(results[0]);
+        resetTranscript();
+      }, 500);
+    }
+  }, [results, transcript, listening]);
   function handleSelect(player) {
     setQuery(player.name);
     setIsOpen(false);
     onSelectPlayer(player);
   }
+  const handleVoiceSearch = () => {
+    if(listening){
+      SpeechRecognition.stopListening();
+    } else {
+      resetTranscript();
+      SpeechRecognition.startListening({ continuous: true });
+    }
+  };
 
   return (
     <div ref={wrapperRef} className="search-wrapper">
@@ -64,6 +94,15 @@ export default function SearchBar({ onSelectPlayer }) {
           onFocus={() => results.length > 0 && setIsOpen(true)}
         />
         {searching && <span className="search-spinner" />}
+          {browserSupportsSpeechRecognition && (
+          <button 
+            className={`voice-button ${listening ? 'listening' : ''}`}
+            onClick={handleVoiceSearch}
+            title={listening ? "Stop listening" : "Voice search"}
+          >
+            {listening ? '🎤' : '🎙️'}
+          </button>
+        )}
       </div>
 
       {isOpen && (
