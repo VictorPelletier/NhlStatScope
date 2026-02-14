@@ -707,6 +707,31 @@ body::before {
   outline: none;
   border-color: var(--accent);
 }
+.voice-button {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.voice-button:hover {
+  border-color: var(--accent);
+}
+
+.voice-button.listening {
+  background: var(--accent);
+  border-color: var(--accent);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
 
 @media (max-width: 600px) {
   .compare-stat-row {
