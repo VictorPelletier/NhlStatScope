@@ -24,6 +24,13 @@ export default function SearchBar({ onSelectPlayer }) {
     }
   }, [transcript]);
 
+  // Debounced search
+  useEffect(() => {
+    if (transcript){
+      setQuery(transcript);
+    }
+  }, [transcript]);
+
  
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
