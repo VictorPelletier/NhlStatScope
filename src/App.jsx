@@ -113,14 +113,21 @@ export default function App() {
 
         {/* Single player mode */}
         {!compareMode && player1.player && (
-          <div className="player-content">
-              {console.log("All leagues:", [...new Set(player1.seasonStats.map(s => s.leagueAbbrev))])}
-   
-            <PlayerCard player={player1.player} />
-            <StatChart seasonStats={player1.seasonStats} position={player1.player.position} />
-            <StatsTable seasonStats={player1.seasonStats} position={player1.player.position} />
-          </div>
-        )}
+  <div className="player-content">
+    <PlayerCard player={player1.player} />
+    <StatChart 
+      seasonStats={player1.seasonStats} 
+      position={player1.player.position}
+      availableLeagues={player1.availableLeagues}
+      selectedLeague={player1.selectedLeague}
+      onLeagueChange={player1.changeLeague}
+    />
+    <StatsTable 
+      seasonStats={player1.seasonStats} 
+      position={player1.player.position} 
+    />
+  </div>
+)}
 
         {/* Empty state */}
         {!player1.loading && !player1.player && (

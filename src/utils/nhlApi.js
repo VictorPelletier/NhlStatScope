@@ -41,16 +41,40 @@ export async function getPlayerLanding(playerId) {
 }
 
 /**
- * Pull out just the regular season stats from a player landing object,
+ * Pull out season stats from a player landing object, optionally filtered by league.
  * sorted oldest → newest.
  */
-export function extractSeasonStats(playerLanding) {
-  const seasons =
-    playerLanding?.seasonTotals?.filter(
-      (s) => s.gameTypeId === 2 // 2 = regular season
-    ) || [];
+export function extractSeasonStats(playerLanding, options = {}) {
+  const { gameTypeId = 2, leagueFilter = null } = options;
+  
+  let seasons = playerLanding?.seasonTotals?.filter(
+    (s) => s.gameTypeId === gameTypeId
+  ) || [];
+
+  // Filter by league if specified
+  if (leagueFilter && leagueFilter !== 'ALL') {
+    seasons = seasons.filter(s => s.leagueAbbrev === leagueFilter);
+  }
 
   return seasons.sort((a, b) => a.season - b.season);
+}
+
+/**
+ * Get all unique leagues a player has played in (regular season only)
+ */
+export function getPlayerLeagues(playerLanding) {
+  const regularSeasonStats = playerLanding?.seasonTotals?.filter(
+    (s) => s.gameTypeId === 2
+  ) || [];
+  
+  const leagues = [...new Set(regularSeasonStats.map(s => s.leagueAbbrev))];
+  
+  // Sort with NHL first, then alphabetically
+  return leagues.sort((a, b) => {
+    if (a === 'NHL') return -1;
+    if (b === 'NHL') return 1;
+    return a.localeCompare(b);
+  });
 }
 
 /**

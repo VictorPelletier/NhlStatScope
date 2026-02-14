@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/nhl-api/:path*",
+      "destination": "https://api-web.nhle.com/:path*"
+    },
+    {
+      "source": "/nhl-stats/:path*",
+      "destination": "https://api.nhle.com/:path*"
+    }
+  ]
+}

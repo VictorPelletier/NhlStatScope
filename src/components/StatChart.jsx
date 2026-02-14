@@ -37,7 +37,14 @@ const GOALIE_COLORS = {
   shutouts: "#457b9d",
 };
 
-export default function StatChart({ seasonStats, position, players }) {
+export default function StatChart({ 
+  seasonStats, 
+  position, 
+  players, 
+  availableLeagues,
+  selectedLeague,
+  onLeagueChange
+}) {
   const [chartType, setChartType] = useState("line");
 
   // Compare mode: multiple players
@@ -77,7 +84,17 @@ export default function StatChart({ seasonStats, position, players }) {
         <div className="chart-header">
           <h3 className="chart-title">Career Comparison</h3>
           <div className="chart-controls">
-            {/* Chart type toggle */}
+             {availableLeagues && availableLeagues.length > 1 && (
+            <select 
+              value={selectedLeague} 
+              onChange={(e) => onLeagueChange(e.target.value)}
+              className="league-select"
+            >
+              {availableLeagues.map(league => (
+                <option key={league} value={league}>{league}</option>
+              ))}
+            </select>
+          )}
             <div className="chart-toggle">
               <button
                 className={`toggle-btn ${chartType === "line" ? "active" : ""}`}
@@ -208,10 +225,25 @@ export default function StatChart({ seasonStats, position, players }) {
 
   const ChartComponent = chartType === "bar" ? BarChart : LineChart;
 
-  return (
-    <div className="stat-chart">
-      <div className="chart-header">
-        <h3 className="chart-title">Career Stats by Season</h3>
+ return (
+  <div className="stat-chart">
+    <div className="chart-header">
+      <h3 className="chart-title">Career Stats by Season</h3>
+      <div className="chart-controls">
+        {/* League selector - ADD THIS */}
+        {availableLeagues && availableLeagues.length > 1 && (
+          <select 
+            value={selectedLeague} 
+            onChange={(e) => onLeagueChange(e.target.value)}
+            className="league-select"
+          >
+            {availableLeagues.map(league => (
+              <option key={league} value={league}>{league}</option>
+            ))}
+          </select>
+        )}
+        
+        {/* Chart type toggle */}
         <div className="chart-toggle">
           <button
             className={`toggle-btn ${chartType === "line" ? "active" : ""}`}
@@ -227,6 +259,7 @@ export default function StatChart({ seasonStats, position, players }) {
           </button>
         </div>
       </div>
+    </div>
 
       <ResponsiveContainer width="100%" height={320}>
         <ChartComponent data={chartData}>

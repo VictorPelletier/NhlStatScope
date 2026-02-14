@@ -691,6 +691,22 @@ body::before {
   border-color: var(--accent);
   color: var(--text-primary);
 }
+.league-select {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.league-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
 
 @media (max-width: 600px) {
   .compare-stat-row {
