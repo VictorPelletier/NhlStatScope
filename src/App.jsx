@@ -4,6 +4,7 @@ import StatChart from "./components/StatChart";
 import StatsTable from "./components/StatsTable";
 import CompareStats from "./components/CompareStats";
 import TeamBrowser from "./components/TeamBrowser";
+import ProspectBrowser from "./components/ProspectBrowser";
 import { usePlayer } from "./hooks/usePlayer";
 import "./App.css";
 import { useState } from "react";
@@ -41,6 +42,12 @@ export default function App() {
             onClick={() => setActiveTab("browse")}
           >
             Browse Teams
+          </button>
+          <button
+            className={`tab ${activeTab === "prospects" ? "active" : ""}`}
+            onClick={() => setActiveTab("prospects")}
+          >
+            Draft Prospects
           </button>
         </div>
 
@@ -158,6 +165,13 @@ export default function App() {
         {/* BROWSE TAB CONTENT - ADD THIS */}
         {activeTab === "browse" && (
           <TeamBrowser onSelectPlayer={(p) => {
+            player1.loadPlayer(p.id);
+            setActiveTab("search"); // Switch back to search tab when player selected
+          }} />
+        )}
+         {/* BROWSE TAB CONTENT - ADD THIS */}
+        {activeTab === "prospects" && (
+          <ProspectBrowser onSelectPlayer={(p) => {
             player1.loadPlayer(p.id);
             setActiveTab("search"); // Switch back to search tab when player selected
           }} />

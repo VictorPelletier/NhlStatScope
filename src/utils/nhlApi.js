@@ -30,6 +30,7 @@ export async function searchPlayers(query) {
   }));
 }
 
+
 /**
  * Fetch full player details + career stats.
  * Returns the full player landing object from the NHL API.
@@ -97,6 +98,17 @@ export async function getTeamRoster(teamAbbrev) {
   const res = await fetch(`/nhl-api/v1/roster/${teamAbbrev}/20252026`);
   if (!res.ok) throw new Error(`Failed to fetch roster for ${teamAbbrev}`);
   return res.json();
+}
+/**
+ * Get draft prospects by category for a specific year
+ * Categories: 1 - NA Skater, 2 - Intl Skater, 3 - NA Goalie, 4 - Intl Goalie
+ */
+export async function getDraftRankings(year = 2026, category = 1) {
+  const res = await fetch(`/nhl-api/v1/draft/rankings/${year}/${category}`);
+  if (!res.ok) throw new Error(`Failed to fetch ${year} draft rankings`);
+  const data = await res.json();
+  
+  return data.rankings || [];
 }
 
 /**
