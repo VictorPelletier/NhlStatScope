@@ -69,12 +69,34 @@ export function getPlayerLeagues(playerLanding) {
   
   const leagues = [...new Set(regularSeasonStats.map(s => s.leagueAbbrev))];
   
-  // Sort with NHL first, then alphabetically
+ 
   return leagues.sort((a, b) => {
     if (a === 'NHL') return -1;
     if (b === 'NHL') return 1;
     return a.localeCompare(b);
   });
+}
+
+export async function getAllTeams() {
+  const today = new Date().toISOString().split('T')[0];
+  const res = await fetch(`/nhl-api/v1/standings/${today}`);
+  if (!res.ok) throw new Error("Failed to fetch teams");
+  const data = await res.json();
+  
+  return data.standings.map(team => ({
+    id: team.teamAbbrev.default,
+    name: team.teamName.default,
+    abbrev: team.teamAbbrev.default,
+    logo: team.teamLogo,
+    conference: team.conferenceName,
+    division: team.divisionName,
+  }));
+}
+
+export async function getTeamRoster(teamAbbrev) {
+  const res = await fetch(`/nhl-api/v1/roster/${teamAbbrev}/20252026`);
+  if (!res.ok) throw new Error(`Failed to fetch roster for ${teamAbbrev}`);
+  return res.json();
 }
 
 /**

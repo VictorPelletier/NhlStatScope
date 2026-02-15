@@ -3,12 +3,14 @@ import PlayerCard from "./components/PlayerCard";
 import StatChart from "./components/StatChart";
 import StatsTable from "./components/StatsTable";
 import CompareStats from "./components/CompareStats";
+import TeamBrowser from "./components/TeamBrowser";
 import { usePlayer } from "./hooks/usePlayer";
 import "./App.css";
 import { useState } from "react";
 
 export default function App() {
-  const [compareMode, setCompareMode] = useState(false);  // Fixed casing
+  const [compareMode, setCompareMode] = useState(false);
+  const [activeTab, setActiveTab] = useState('search');
   const player1 = usePlayer();
   const player2 = usePlayer();
 
@@ -26,115 +28,139 @@ export default function App() {
       </header>
 
       <main className="app-main">
-        {/* Compare toggle */}
-        <button 
-          className="compare-toggle"
-          onClick={() => setCompareMode(!compareMode)}
-        >
-          {compareMode ? "Exit Compare" : "Compare Players"}
-        </button>
-
-        {/* Search - conditional rendering */}
-        <div className="search-section">
-          {compareMode ? (
-            <div className="compare-search-grid">
-              <SearchBar onSelectPlayer={(p) => player1.loadPlayer(p.id)} />
-              <SearchBar onSelectPlayer={(p) => player2.loadPlayer(p.id)} />
-            </div>
-          ) : (
-            <SearchBar onSelectPlayer={(p) => player1.loadPlayer(p.id)} />
-            
-          )}
-          
+        {/* Tab Navigation - ADD THIS */}
+        <div className="tabs">
+          <button
+            className={`tab ${activeTab === "search" ? "active" : ""}`}
+            onClick={() => setActiveTab("search")}
+          >
+            Search
+          </button>
+          <button
+            className={`tab ${activeTab === "browse" ? "active" : ""}`}
+            onClick={() => setActiveTab("browse")}
+          >
+            Browse Teams
+          </button>
         </div>
 
-        {/* Loading state */}
-        {(player1.loading || player2.loading) && (
-          <div className="state-message">
-            <div className="loader" />
-            <p>Loading player data…</p>
-          </div>
-          
-        )}
-
-        {/* Error state */}
-        {(player1.error || player2.error) && (
-          <div className="state-message error">
-            <p>⚠️ {player1.error || player2.error}</p>
-            <button onClick={() => {
-              player1.clearPlayer();
-              player2.clearPlayer();
-            }} className="btn-secondary">
-              Try again
+        {/* SEARCH TAB CONTENT - Wrap everything below in this condition */}
+        {activeTab === "search" && (
+          <>
+            {/* Compare toggle */}
+            <button 
+              className="compare-toggle"
+              onClick={() => setCompareMode(!compareMode)}
+            >
+              {compareMode ? "Exit Compare" : "Compare Players"}
             </button>
-          </div>
+
+            {/* Search - conditional rendering */}
+            <div className="search-section">
+              {compareMode ? (
+                <div className="compare-search-grid">
+                  <SearchBar onSelectPlayer={(p) => player1.loadPlayer(p.id)} />
+                  <SearchBar onSelectPlayer={(p) => player2.loadPlayer(p.id)} />
+                </div>
+              ) : (
+                <SearchBar onSelectPlayer={(p) => player1.loadPlayer(p.id)} />
+              )}
+            </div>
+
+            {/* Loading state */}
+            {(player1.loading || player2.loading) && (
+              <div className="state-message">
+                <div className="loader" />
+                <p>Loading player data…</p>
+              </div>
+            )}
+
+            {/* Error state */}
+            {(player1.error || player2.error) && (
+              <div className="state-message error">
+                <p>⚠️ {player1.error || player2.error}</p>
+                <button onClick={() => {
+                  player1.clearPlayer();
+                  player2.clearPlayer();
+                }} className="btn-secondary">
+                  Try again
+                </button>
+              </div>
+            )}
+
+            {/* Compare mode - two players */}
+            {compareMode && player1.player && player2.player && (
+              <div className="compare-grid">
+                <div className="player-content">
+                  <PlayerCard player={player1.player} />
+                </div>
+                <div className="player-content">
+                  <PlayerCard player={player2.player} />
+                </div>
+              </div>
+            )}
+
+            {/* Combined chart for compare mode */}
+            {compareMode && player1.player && player2.player && (
+              <>
+                <StatChart 
+                  players={[
+                    { 
+                      name: `${player1.player.firstName?.default} ${player1.player.lastName?.default}`,
+                      seasonStats: player1.seasonStats, 
+                      position: player1.player.position 
+                    },
+                    { 
+                      name: `${player2.player.firstName?.default} ${player2.player.lastName?.default}`,
+                      seasonStats: player2.seasonStats, 
+                      position: player2.player.position 
+                    }
+                  ]}
+                />
+                
+                <CompareStats 
+                  player1={player1.player}
+                  player2={player2.player}
+                  seasonStats1={player1.seasonStats}
+                  seasonStats2={player2.seasonStats}
+                />
+              </>
+            )}
+
+            {/* Single player mode */}
+            {!compareMode && player1.player && (
+              <div className="player-content">
+                <PlayerCard player={player1.player} />
+                <StatChart 
+                  seasonStats={player1.seasonStats} 
+                  position={player1.player.position}
+                  availableLeagues={player1.availableLeagues}
+                  selectedLeague={player1.selectedLeague}
+                  onLeagueChange={player1.changeLeague}
+                />
+                <StatsTable 
+                  seasonStats={player1.seasonStats} 
+                  position={player1.player.position} 
+                />
+              </div>
+            )}
+
+            {/* Empty state */}
+            {!player1.loading && !player1.player && (
+              <div className="empty-state">
+                <div className="empty-icon">🏒</div>
+                <p>Search for a player to explore their career stats</p>
+              </div>
+            )}
+          </>
         )}
 
-        {/* Compare mode - two players */}
-{compareMode && player1.player && player2.player && (
-  <div className="compare-grid">
-    <div className="player-content">
-      <PlayerCard player={player1.player} />
-      {/* Removed individual charts */}
-    </div>
-    <div className="player-content">
-      <PlayerCard player={player2.player} />
-    </div>
-  </div>
-)}
-
-{/* Combined chart for compare mode */}
-{compareMode && player1.player && player2.player && (
-  <>
-    <StatChart 
-      players={[
-        { 
-          name: `${player1.player.firstName?.default} ${player1.player.lastName?.default}`,
-          seasonStats: player1.seasonStats, 
-          position: player1.player.position 
-        },
-        { 
-          name: `${player2.player.firstName?.default} ${player2.player.lastName?.default}`,
-          seasonStats: player2.seasonStats, 
-          position: player2.player.position 
-        }
-      ]}
-    />
-    
-    {/* Career totals comparison */}
-    <CompareStats 
-      player1={player1.player}
-      player2={player2.player}
-      seasonStats1={player1.seasonStats}
-      seasonStats2={player2.seasonStats}
-    />
-  </>
-)}
-
-        {/* Single player mode */}
-        {!compareMode && player1.player && (
-  <div className="player-content">
-    <PlayerCard player={player1.player} />
-    <StatChart 
-      seasonStats={player1.seasonStats} 
-      position={player1.player.position}
-      availableLeagues={player1.availableLeagues}
-      selectedLeague={player1.selectedLeague}
-      onLeagueChange={player1.changeLeague}
-    />
-    <StatsTable 
-      seasonStats={player1.seasonStats} 
-      position={player1.player.position} 
-    />
-  </div>
-)}
-
-        {/* Empty state */}
-        {!player1.loading && !player1.player && (
-          <div className="empty-state">
-            <div className="empty-icon">🏒</div>
-            <p>Search for a player to explore their career stats</p>
-          </div>
+        {/* BROWSE TAB CONTENT - ADD THIS */}
+        {activeTab === "browse" && (
+          <TeamBrowser onSelectPlayer={(p) => {
+            player1.loadPlayer(p.id);
+            setActiveTab("search"); // Switch back to search tab when player selected
+          }} />
         )}
       </main>
     </div>
